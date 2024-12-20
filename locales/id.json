@@ -4,7 +4,8 @@
     "help": "Hai, aku di sini buat bantu kamu catat pengeluaran. Kirim struk belanja aja, nanti aku urus semuanya. 😉\n\nDaftar perintah yang bisa kamu gunakan:\n\n- /start: Mulai ngobrol sama aku.\n- /help: Lihat apa yang aku bisa.\n- /setlimit: Atur budget bulanan kamu biar lebih terkontrol.\n- /cek: Cek pengeluaran kamu, bisa pilih bulanan atau mingguan.\n- /list: Lihat daftar pengeluaran yang udah dicatat.\n- /total: Tampilkan total semua pengeluaran kamu.\n- /reset: Hapus semua catatan selama ini",
     "reset_confirm": "Kamu yakin mau hapus semua pengeluaran yang udah ku catet?\n\nIni gak bisa dibatalin lho. 😢\n\nKetik *YA* untuk konfirmasi atau ketik apa aja untuk batal.",
     "setlimit": "Hai! Yuk atur budget bulanan kamu.\n\nOh iya, jangan lupa tambahin sedikit buat uang darurat ya, biar lebih tenang kalau ada keperluan mendadak 😊\n\nJadi berapa nih uang bulanan nya?\n\nContoh: 1500000",
-    "limit_too_low": "Yakin nih segini aja? 😯 Kalau nanti pengeluaran kamu lebih dari ini, aku bakal marahin kamu loh! 😡",
+    "limit_invalid": "Aduh, kayaknya kamu salah ketik nih. 😅 Coba ketik lagi ya, jangan lupa angka tanpa titik atau koma.",
+    "limit_too_low": "Sip udah ku ingat tapi kamu yakin cuman *{{limit}}*? 😯\n\nKalau nanti pengeluaran kamu lebih dari ini, aku bakal marahin kamu loh! 😡",
     "limit_set": "Yeay! Budget bulanan kamu udah aku atur jadi *{{limit}}*. 🎉\n\nIngat ya, gunakan dengan bijak biar aman sampai akhir bulan! 😊",
     "cek": "Kamu mau cek pengeluaran yang bulanan atau mingguan?",
     "cek_buttons": {

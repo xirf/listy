@@ -1,15 +1,19 @@
-import { Telegraf } from 'telegraf';
+import { Bot, Context } from 'grammy';
 import { BOT_TOKEN } from '../config/botconfig';
 import logger from '../utils/logger';
 
-export const bot = new Telegraf(BOT_TOKEN);
+import { parseMode, type ParseModeFlavor } from "@grammyjs/parse-mode";
+
+export const bot = new Bot<ParseModeFlavor<Context>>(BOT_TOKEN);
+
+bot.api.config.use(parseMode("Markdown"))
 
 export async function startBot() {
     try {
-        bot.launch();
+        bot.start();
         logger.info({}, "Success, Waiting for messages...");
     } catch (error: any) {
-        logger.fatal({error}, `Fatal error while starting bot: ${error.message}`);
+        logger.fatal({error}, `Fatal error while starting bot: ${error.message}`);  
         process.exit(1);
     }
 }
