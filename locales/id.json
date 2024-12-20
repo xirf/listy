@@ -1,0 +1,25 @@
+{
+    "start": "Hai, {{name}}! 👋\nAku di sini buat bantu kamu catat pengeluaran. Kirim struk belanja aja, nanti aku yang urus semuanya. 😉\nButuh panduan? Ketik aja /help. Yuk mulai sekarang! 💖",
+    "what_to_do": "Aku bingung kamu mau apa nih. 😅\nCoba kirim struk belanja, nanti aku catat pengeluaran kamu ya. 😉\n\nKalau butuh bantuan, ketik aja /help ya! 💖",
+    "help": "Hai, aku di sini buat bantu kamu catat pengeluaran. Kirim struk belanja aja, nanti aku urus semuanya. 😉\n\nDaftar perintah yang bisa kamu gunakan:\n\n- /start: Mulai ngobrol sama aku.\n- /help: Lihat apa yang aku bisa.\n- /setlimit: Atur budget bulanan kamu biar lebih terkontrol.\n- /cek: Cek pengeluaran kamu, bisa pilih bulanan atau mingguan.\n- /list: Lihat daftar pengeluaran yang udah dicatat.\n- /total: Tampilkan total semua pengeluaran kamu.\n- /reset: Hapus semua catatan selama ini",
+    "reset_confirm": "Kamu yakin mau hapus semua pengeluaran yang udah ku catet?\n\nIni gak bisa dibatalin lho. 😢\n\nKetik *YA* untuk konfirmasi atau ketik apa aja untuk batal.",
+    "setlimit": "Hai! Yuk atur budget bulanan kamu.\n\nOh iya, jangan lupa tambahin sedikit buat uang darurat ya, biar lebih tenang kalau ada keperluan mendadak 😊\n\nJadi berapa nih uang bulanan nya?\n\nContoh: 1500000",
+    "limit_too_low": "Yakin nih segini aja? 😯 Kalau nanti pengeluaran kamu lebih dari ini, aku bakal marahin kamu loh! 😡",
+    "limit_set": "Yeay! Budget bulanan kamu udah aku atur jadi *{{limit}}*. 🎉\n\nIngat ya, gunakan dengan bijak biar aman sampai akhir bulan! 😊",
+    "cek": "Kamu mau cek pengeluaran yang bulanan atau mingguan?",
+    "cek_buttons": {
+        "monthly": "Bulanan 📅",
+        "weekly": "Mingguan 📆"
+    },
+    "cek_empty": "Belum ada pengeluaran yang tercatat nih. Yuk mulai atur keuangan kamu sekarang! 💖",
+    "cek_monthly": "Ini dia pengeluaran kamu bulan ini:\n\n{{list}}\n\nTotalnya: *{{total}}*.",
+    "cek_weekly": "Ini dia pengeluaran kamu minggu ini:\n\n{{list}}\n\nTotalnya: *{{total}}*.",
+    "cek_monthly_have_limit": "Ini pengeluaran kamu bulan ini:\n\n{{list}}\n\nTotalnya: *{{total}}*.\n\nSisa budget bulanan kamu tinggal: *{{remaining}}*.\n\nYuk selalu bijak belanjanya ya!",
+    "cek_weekly_have_limit": "Ini pengeluaran kamu minggu ini:\n\n{{list}}\n\nTotalnya: *{{total}}*.\n\nSisa budget bulanan kamu: *{{remaining}}*. \n\nJangan lupa kontrol pengeluaran ya!",
+    "list": "Sejak kamu bareng aku, ini daftar belanjaanmu:\n\n{{list}}\n\nTotal yang udah kamu habiskan: *{{total}}*. Jangan lupa kontrol pengeluaran ya! 💖",
+    "list_empty": "Belum ada belanjaan yang tercatat nih. Yuk mulai sekarang biar keuangan kamu lebih teratur! 😊",
+    "total": "Total pengeluaran kamu sampai sekarang adalah: *{{total}}*. Bagus ya, terus semangat atur keuanganmu biar makin rapi! 💪✨",
+    "total_empty": "Belum ada pengeluaran yang tercatat nih. Yuk mulai atur keuangan kamu sekarang! 💖",
+    "overbudget": "Hey! 😡 Kemarin udah set budget bulanan *{{limit}}* kan? kok malah jadi *{{total}}*\n\nKenapa sekarang belanja jadi kebablasan begini? Harusnya lebih hati-hati dong ngatur uangnya! 😤",
+    "nearbudget": "Eh, hati-hati ya! 😯 Budget bulanan kamu tinggal sedikit lagi nih, cuma *{{remaining}}* dari *{{limit}}*. Jangan sampai kebablasan ya, yuk atur belanjanya biar aman! 💖"
+}

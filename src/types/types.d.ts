@@ -12,6 +12,7 @@ export interface UserTable {
     username: string; // Telegram username
     first_name: string; // User's first name
     last_name: string | null; // User's last name (optional)
+    limit: number | null; // Limit for the user
     created_at: ColumnType<Date, string | undefined, never>; // Timestamp for user creation
 }
 
