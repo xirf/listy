@@ -1,0 +1,29 @@
+{
+  "isReceipt": true,
+  "currency": "IDR",
+  "items": [
+    {
+      "item": "Bread Butter Pudding",
+      "itemCount": 1,
+      "price": "11,500"
+    },
+    {
+      "item": "Cream Bruille",
+      "itemCount": 1,
+      "price": "14,000"
+    },
+    {
+      "item": "Choco Croissant",
+      "itemCount": 1,
+      "price": "10,500"
+    },
+    {
+      "item": "Bank Of Chocolat",
+      "itemCount": 1,
+      "price": "7,500"
+    }
+  ],
+  "storeName": "BreadTalk",
+  "totalPriceBeforeDiscount": "43,500",
+  "transactionDate": "10 May 19 16:32:47"
+}

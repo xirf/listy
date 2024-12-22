@@ -10,3 +10,21 @@ export interface SessionData {
 
 export type ListyContext = Context & ParseModeFlavor<Context> & SessionFlavor<SessionData> & FileFlavor<Context> & CommandsFlavor;
 export type ListyApi = FileApiFlavor<Api>;
+
+type ReceiptResult = {
+    isReceipt: boolean;
+    items?: Array<{
+        item: string;
+        itemCount: number;
+        price: string;
+    }>;
+    discounts?: Array<{
+        description: string;
+        amount: string;
+    }>;
+    totalPriceBeforeDiscount?: string;
+    totalPriceAfterDiscount?: string;
+    storeName?: string;
+    transactionDate?: string;
+    currency?: string;
+};
