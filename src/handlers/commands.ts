@@ -26,10 +26,9 @@ export const setupCommands = (bot: Bot<ParseModeFlavor<Context>, Api<RawApi>>) =
     bot.command('reset', async (ctx) => {
         const userId = ctx.from?.id;
         if (userId) {
-            userState[ userId ] = { waitingForResetConfirmation: true };
             const keyboard = new InlineKeyboard()
-                .text(i18n.t('reset_yes'), CallbackQuery.RESET_CONFIRM)
-                .text(i18n.t('reset_no'), CallbackQuery.RESET_CANCEL);
+                .text(i18n.t('reset_buttons.yes'), CallbackQuery.RESET_CONFIRM)
+                .text(i18n.t('reset_buttons.no'), CallbackQuery.RESET_CANCEL);
 
             await ctx.reply(i18n.t('reset_confirm'), {
                 reply_markup: keyboard,
