@@ -17,13 +17,3 @@ export async function startBot() {
         process.exit(1);
     }
 }
-
-process.on('SIGINT', async () => {
-    logger.info({}, "Received SIGINT, stopping bot...");
-    await bot.stop();
-});
-
-process.on('SIGTERM', async () => {
-    logger.info({}, "Received SIGTERM, stopping bot...");
-    await bot.stop();
-});

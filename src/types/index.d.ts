@@ -1,3 +1,4 @@
 export interface SavedState {
-    waitingForLimit?: boolean
+    waitingForLimit?: boolean,
+    waitingForResetConfirmation?: boolean,
 }

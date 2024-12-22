@@ -14,13 +14,12 @@ export const setupEventHandlers = (bot: Bot<ParseModeFlavor<Context>, Api<RawApi
     bot.on('message:text', async (ctx) => {
         let user = await db.selectFrom('users').where('telegram_id', "=", ctx.from.id.toString()).execute();
 
+        console.log(user);
+
         if (user.length === 0) {
             await db.insertInto('users')
                 .values({
                     telegram_id: ctx.from.id.toString(),
-                    username: ctx.from.username || '',
-                    first_name: ctx.from.first_name || '',
-                    last_name: ctx.from.last_name || '',
                 })
                 .execute();
 
