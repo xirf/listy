@@ -29,5 +29,11 @@
     "total": "Total pengeluaran kamu sampai sekarang adalah: *{{total}}*. Bagus ya, terus semangat atur keuanganmu biar makin rapi! 💪✨",
     "total_empty": "Belum ada pengeluaran yang tercatat nih. Yuk mulai atur keuangan kamu sekarang! 💖",
     "overbudget": "Hey! 😡 Kemarin udah set budget bulanan *{{limit}}* kan? kok malah jadi *{{total}}*\n\nKenapa sekarang belanja jadi kebablasan begini? Harusnya lebih hati-hati dong ngatur uangnya! 😤",
-    "nearbudget": "Eh, hati-hati ya! 😯 Budget bulanan kamu tinggal sedikit lagi nih, cuma *{{remaining}}* dari *{{limit}}*. Jangan sampai kebablasan ya, yuk atur belanjanya biar aman! 💖"
+    "nearbudget": "Eh, hati-hati ya! 😯 Budget bulanan kamu tinggal sedikit lagi nih, cuma *{{remaining}}* dari *{{limit}}*. Jangan sampai kebablasan ya, yuk atur belanjanya biar aman! 💖",
+    "processing_image": "Bentar ya, Listy lihat dulu struk belanjanya",
+    "invalid_image": "Aduh, kayaknya ini bukan struk belanja ya. 😅\n\nCoba kirim struk belanja yang jelas biar Listy bisa bantu kamu catat pengeluaran.",
+    "image_error": "Aduh, sepertinya ada yang salah nih. 😢\n\nCoba kirim struk belanja yang jelas biar Listy bisa bantu kamu catat pengeluaran.",
+    "image_success": "Yeay! Listy udah catat pengeluaran kamu sebesar *{{amount}}*.\n\nIni yang udah Listy catat:\n\n{{list}}\n\nKamu dapet diskon *{{discount}}* lho! 🎉\n\nTotal pengeluaran kamu bulan ini: *{{total}}",
+    "image_success_no_discount": "Yeay! Listy udah catat pengeluaran kamu sebesar *{{amount}}*.\n\nIni yang udah Listy catat:\n\n{{list}}\n\nTotal pengeluaran kamu bulan ini: *{{total}}",
+    "image_success_with_limit": "Yeay! Listy udah catat pengeluaran kamu sebesar *{{amount}}*.\n\nIni yang udah Listy catat:\n\n{{list}}\n\nTotal pengeluaran kamu bulan ini: *{{total}}\n\nSisa budget bulanan kamu tinggal: *{{remaining}}*.\n\nYuk selalu bijak belanjanya ya!"
 }

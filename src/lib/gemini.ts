@@ -135,3 +135,6 @@ class GeminiImageProcessor {
         return result.response.json();
     }
 }
+
+
+export { GeminiImageProcessor };
