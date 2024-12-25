@@ -1,29 +1,20 @@
 import type { ReceiptResult } from "../types";
 import logger from "../utils/logger";
 
-const {
-    GoogleGenerativeAI,
-    HarmCategory,
-    HarmBlockThreshold,
-} = require("@google/generative-ai");
-const { GoogleAIFileManager } = require("@google/generative-ai/server");
+import { GoogleGenerativeAI, SchemaType, type GenerationConfig, } from "@google/generative-ai";
+import { GoogleAIFileManager } from "@google/generative-ai/server";
 
-const apiKey = process.env.GEMINI_API_KEY;
+const apiKey = process.env.GEMINI_API_KEY as string;
 const genAI = new GoogleGenerativeAI(apiKey);
 const fileManager = new GoogleAIFileManager(apiKey);
 
-/**
- * Uploads the given file to Gemini.
- *
- * See https://ai.google.dev/gemini-api/docs/prompting_with_media
- */
 async function uploadToGemini(path: string, mimeType: string) {
     const uploadResult = await fileManager.uploadFile(path, {
         mimeType,
         displayName: path,
     });
     const file = uploadResult.file;
-    console.log(`Uploaded file ${file.displayName} as: ${file.name}`);
+    logger.info(`Uploaded file to Gemini: ${file.uri}`);
     return file;
 }
 
@@ -31,65 +22,82 @@ const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
 });
 
-const generationConfig = {
+const generationConfig: GenerationConfig = {
     temperature: 1,
     topP: 0.95,
     topK: 40,
     maxOutputTokens: 8192,
     responseMimeType: "application/json",
     responseSchema: {
-        type: "object",
+        type: SchemaType.OBJECT,
         properties: {
             isReceipt: {
-                type: "boolean",
+                type: SchemaType.BOOLEAN,
             },
             items: {
-                type: "array",
+                type: SchemaType.ARRAY,
                 items: {
-                    type: "object",
+                    type: SchemaType.OBJECT,
                     properties: {
                         item: {
-                            type: "string",
+                            type: SchemaType.STRING,
                         },
                         itemCount: {
-                            type: "number",
+                            type: SchemaType.NUMBER,
                         },
                         price: {
-                            type: "string",
+                            type: SchemaType.STRING,
                         },
                     },
                     required: [ "item", "itemCount", "price" ],
                 },
             },
             discounts: {
-                type: "array",
+                type: SchemaType.ARRAY,
                 items: {
-                    type: "object",
+                    type: SchemaType.OBJECT,
                     properties: {
                         description: {
-                            type: "string",
+                            type: SchemaType.STRING,
                         },
                         amount: {
-                            type: "string",
+                            type: SchemaType.STRING,
                         },
                     },
                     required: [ "description", "amount" ],
                 },
             },
             totalPriceBeforeDiscount: {
-                type: "string",
+                type: SchemaType.NUMBER
             },
             totalPriceAfterDiscount: {
-                type: "string",
+                type: SchemaType.NUMBER
             },
             storeName: {
-                type: "string",
+                type: SchemaType.STRING,
             },
             transactionDate: {
-                type: "string",
+                type: SchemaType.OBJECT,
+                properties: {
+                    minute: {
+                        type: SchemaType.NUMBER,
+                    },
+                    hour: {
+                        type: SchemaType.NUMBER,
+                    },
+                    day: {
+                        type: SchemaType.NUMBER,
+                    },
+                    month: {
+                        type: SchemaType.NUMBER,
+                    },
+                    year: {
+                        type: SchemaType.NUMBER,
+                    },
+                },
             },
             currency: {
-                type: "string",
+                type: SchemaType.STRING,
             },
         },
         required: [
