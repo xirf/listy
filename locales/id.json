@@ -35,5 +35,6 @@
     "image_error": "Aduh, sepertinya ada yang salah nih. 😢\n\nCoba kirim struk belanja yang jelas biar Listy bisa bantu kamu catat pengeluaran.",
     "image_success": "Yeay! Listy udah catat pengeluaran kamu sebesar *{{amount}}*.\n\nIni yang udah Listy catat:\n\n{{list}}\n\nKamu dapet diskon *{{discount}}* lho! 🎉\n\nTotal pengeluaran kamu bulan ini: *{{total}}",
     "image_success_no_discount": "Yeay! Listy udah catat pengeluaran kamu sebesar *{{amount}}*.\n\nIni yang udah Listy catat:\n\n{{list}}\n\nTotal pengeluaran kamu bulan ini: *{{total}}",
-    "image_success_with_limit": "Yeay! Listy udah catat pengeluaran kamu sebesar *{{amount}}*.\n\nIni yang udah Listy catat:\n\n{{list}}\n\nTotal pengeluaran kamu bulan ini: *{{total}}\n\nSisa budget bulanan kamu tinggal: *{{remaining}}*.\n\nYuk selalu bijak belanjanya ya!"
+    "image_success_with_limit": "Yeay! Listy udah catat pengeluaran kamu sebesar *{{amount}}*.\n\nIni yang udah Listy catat:\n\n{{list}}\n\nTotal pengeluaran kamu bulan ini: *{{total}}\n\nSisa budget bulanan kamu tinggal: *{{remaining}}*.\n\nYuk selalu bijak belanjanya ya!",
+    "error": "Aduh, Listy pusing, kek nya ada yang salah nihi. 😢\n\nCoba lagi ya, atau ketik /help kalo kamu butuh bantuan."
 }
