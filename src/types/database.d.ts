@@ -30,12 +30,25 @@ export interface DiscountTable {
 export interface TransactionTable {
     id: Generated<number>;
     user_id: string;
-    total_price_before_discount: number;
-    total_price_after_discount: number;
-    store_name: string;
+    total_price_before_discount: ColumnType<number | undefined>;
+    total_price_after_discount: ColumnType<number | undefined>;
+    store_name: ColumnType<string | undefined>;
     transaction_date: ColumnType<Date, string | undefined, never>;
-    currency: string;
+    currency: ColumnType<string | undefined>;
     created_at: ColumnType<Date, string | undefined, never>;
+}
+
+export interface HistoryTable {
+    id: Generated<number>;
+    telegram_id: string;
+    message: string;
+    created_at: ColumnType<Date, string | undefined, never>;
+}
+
+export interface ChecksumTable {
+    id: Generated<number>;
+    checksum: string;
+    user_id: string;
 }
 
 export interface Database {
@@ -43,6 +56,8 @@ export interface Database {
     items: ItemTable;
     discounts: DiscountTable;
     transactions: TransactionTable;
+    history: HistoryTable;
+    checksum: ChecksumTable;
 }
 
 export type User = Selectable<UserTable>;
@@ -60,3 +75,11 @@ export type DiscountUpdate = Updateable<DiscountTable>;
 export type Transaction = Selectable<TransactionTable>;
 export type NewTransaction = Insertable<TransactionTable>;
 export type TransactionUpdate = Updateable<TransactionTable>;
+
+export type History = Selectable<HistoryTable>;
+export type NewHistory = Insertable<HistoryTable>;
+export type HistoryUpdate = Updateable<HistoryTable>;
+
+export type Checksum = Selectable<ChecksumTable>;
+export type NewChecksum = Insertable<ChecksumTable>;
+export type ChecksumUpdate = Updateable<ChecksumTable>;

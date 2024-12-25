@@ -18,6 +18,7 @@ Listy is a Telegram bot designed to help you easily track your financial expense
 - [ ] Multi-user support
 - [ ] Dockerize the bot
 - [ ] Code documentation
+- [ ] Add duplication checks for receipts
 
 ## Table of Contents
 

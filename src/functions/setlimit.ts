@@ -1,7 +1,7 @@
-import type { ListyContext } from "../../types/index";
-import i18n from '../../i18n';
-import { userState } from "../../utils/state";
-import logger from "../../utils/logger";
+import type { ListyContext } from "../types/index";
+import i18n from '../i18n';
+import { userState } from "../utils/state";
+import logger from "../utils/logger";
 
 export async function handleSetLimit(ctx: ListyContext) {
     try {

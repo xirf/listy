@@ -22,9 +22,13 @@ type ReceiptResult = {
         description: string;
         amount: string;
     }>;
-    totalPriceBeforeDiscount?: string;
-    totalPriceAfterDiscount?: string;
+    totalPriceBeforeDiscount?: number;
+    totalPriceAfterDiscount?: number;
     storeName?: string;
-    transactionDate?: string;
+    transactionDate: {
+        day: number;
+        month: number;
+        year: number;
+    };
     currency?: string;
 };

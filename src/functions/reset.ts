@@ -1,9 +1,9 @@
-import type { ListyContext } from "../../types/index";
-import i18n from '../../i18n';
+import type { ListyContext } from "../types/index";
+import i18n from '../i18n';
 import { InlineKeyboard } from "grammy";
-import { CallbackQuery } from "../../constant/CallbackQuery";
-import { userState } from "../../utils/state";
-import logger from "../../utils/logger";
+import { CallbackQuery } from "../constant/CallbackQuery";
+import { userState } from "../utils/state";
+import logger from "../utils/logger";
 
 export async function handleReset(ctx: ListyContext) {
     try {

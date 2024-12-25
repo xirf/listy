@@ -13,12 +13,12 @@ export async function up(db: Kysely<any>): Promise<void> {
 		.createTable('transactions')
 		.addColumn('id', 'serial', (col) => col.primaryKey())
 		.addColumn('user_id', 'varchar', (col) => col.references('users.telegram_id').onDelete('cascade').notNull())
-		.addColumn('total_price_before_discount', 'decimal', (col) => col.notNull())
-		.addColumn('total_price_after_discount', 'decimal', (col) => col.notNull())
-		.addColumn('discount_amount', 'decimal', (col) => col.notNull())
+		.addColumn('total_price_before_discount', 'decimal')
+		.addColumn('total_price_after_discount', 'decimal')
+		.addColumn('discount_amount', 'decimal')
 		.addColumn('store_name', 'varchar')
 		.addColumn('transaction_date', 'timestamp', (col) => col.defaultTo(sql`now()`).notNull())
-		.addColumn('currency', 'varchar(50)', (col) => col.notNull())
+		.addColumn('currency', 'varchar(50)')
 		.addColumn('created_at', 'timestamp', (col) => col.defaultTo(sql`now()`).notNull())
 		.execute();
 

@@ -1,8 +1,8 @@
 import { Command, CommandGroup } from "@grammyjs/commands";
 import type { ListyContext } from "../types";
-import { handleSetLimit } from "./functions/setlimit";
+import { handleSetLimit } from "../functions/setlimit";
 import i18n from '../i18n';
-import { handleReset } from "./functions/reset";
+import { handleReset } from "../functions/reset";
 
 const setLimitCommand = new Command<ListyContext>("setlimit", "Tetapkan budget bulananmu", handleSetLimit);
 const resetCommand = new Command<ListyContext>("reset", 'Hapus semua yang udah di catet', handleReset);

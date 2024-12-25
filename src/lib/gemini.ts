@@ -20,6 +20,7 @@ async function uploadToGemini(path: string, mimeType: string) {
 
 const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
+    systemInstruction: "If no currency is provided, the system will assume the currency is IDR. If no store name is provided, the system will assume the store name is 'Unknown'. If no transaction date is provided, the system will assume the transaction date is the current date. If no items are provided, the system will assume there are no items. If no discounts are provided, the system will assume there are no discounts. all above assumptions are valid if image is a receipt.",
 });
 
 const generationConfig: GenerationConfig = {
@@ -102,6 +103,7 @@ const generationConfig: GenerationConfig = {
         },
         required: [
             "isReceipt",
+            "transactionDate",
         ],
     },
 };
