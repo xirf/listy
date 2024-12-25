@@ -14,8 +14,10 @@ async function getHistory(userId: string) {
         const history = await db.selectFrom('history')
             .select('message')
             .where('telegram_id', '=', userId)
+            .where('created_at', '>', new Date(Date.now() - 3600000))
             .limit(5)
             .execute();
+
         return history.map(a => JSON.parse(a.message));
     } catch (error: any) {
         logger.error(`Error fetching history for user ${userId}: ${error.message}`);
@@ -43,9 +45,10 @@ async function handleGeminiResponse(ctx: ListyContext, userId: string, history: 
         const functionCalled = geminiAnswer.response.functionCalls();
         const answer = geminiAnswer.response.text();
 
-        logger.info(`User ${userId} asked: ${ctx.message.text}, gemini answered: ${answer.slice(0, 100)}`);
+        console.log("Function called: ", functionCalled);
+        console.log("Answer: ", answer);
 
-        if (functionCalled && functionCalled.length > 0) handleFuntionCall(functionCalled[ 0 ]);
+        if (functionCalled && functionCalled.length > 0) handleFuntionCall(ctx, functionCalled[ 0 ]);
         if (answer) {
             await ctx.reply(answer);
             saveMessage(userId, answer, "model");
@@ -62,8 +65,6 @@ export async function setupEventHandlers(bot: Bot<ListyContext>) {
     bot.on(':text', async (ctx) => {
         const userId = ctx.from?.id.toString();;
         if (!userId) return;
-
-        logger.info(`User ${userId} asked: ${ctx.message.text}`);
 
         const state = userState[ userId ];
 
