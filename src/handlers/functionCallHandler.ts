@@ -7,8 +7,6 @@ export default async function handleFuntionCall(ctx: ListyContext, functionCall:
     try {
         let functionName = functionCall.function.name;
         let args = JSON.parse(functionCall.function.arguments);
-        console.log("Function name: ", functionName);
-        console.log("Arguments: ", args);
 
         switch (functionName) {
             case "set_user_limit":
@@ -16,9 +14,11 @@ export default async function handleFuntionCall(ctx: ListyContext, functionCall:
                 break;
             case "calculate_total_spending":
                 if (args.startDate) {
-                    calculateTotalSpending.execute(ctx, {
-                        startDate: args.startDate,
-                        endDate: args.endDate || new Date().toISOString()
+                    let startDate = new Date(args.startDate);
+                    let endDate = args.endDate ? new Date(args.endDate) : new Date();
+                    await calculateTotalSpending.execute(ctx, {
+                        startDate: startDate.toISOString(),
+                        endDate: endDate.toISOString()
                     });
                 }
                 break;

@@ -29,7 +29,7 @@ export const handleImage = async (ctx: ListyContext) => {
 
             const itemList = formatItemList(receiptContent.items);
             const totalSpending = calculateTotalSpending(receiptContent, discountAmount);
-            const overallSpending = await updateUserSpending(ctx, totalSpending);
+            const overallSpending = await updateUserSpending(ctx, totalSpending, extractBuyDate(receiptContent));
 
             await insertChecksum(checksum, ctx);
             await sendReceiptSuccess(ctx, itemList, discountAmount, totalSpending);
@@ -168,14 +168,22 @@ function calculateTotalSpending(receiptContent: ReceiptResult, discountAmount: n
     return (receiptContent.totalPriceBeforeDiscount || 0) - discountAmount;
 }
 
-async function updateUserSpending(ctx: ListyContext, totalSpending: number) {
-    const [ updatedUser ] = await db
-        .updateTable("users")
-        .set({ total_spending: sql`total_spending + ${totalSpending}` })
-        .where("telegram_id", "=", ctx.from.id)
-        .returning("total_spending")
-        .execute();
-    return updatedUser.total_spending;
+async function updateUserSpending(ctx: ListyContext, totalSpending: number, date: Date) {
+    if (date.getMonth() == new Date().getMonth()) {
+        const [ updatedUser ] = await db
+            .updateTable("users")
+            .set({ total_spending: sql`total_spending + ${totalSpending}` })
+            .where("telegram_id", "=", ctx.from.id)
+            .returning("total_spending")
+            .execute();
+        return updatedUser.total_spending;
+    } else {
+        await db
+            .selectFrom("users")
+            .where("telegram_id", "=", ctx.from.id)
+            .execute();
+        return totalSpending;
+    }
 }
 
 async function insertChecksum(checksum: string, ctx: ListyContext) {

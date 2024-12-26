@@ -2,7 +2,6 @@ import type { Api, Bot, Context, RawApi } from 'grammy';
 import type { ParseModeFlavor } from '@grammyjs/parse-mode';
 import { CallbackQuery } from '../constant/CallbackQuery';
 import { handleResetConfirm, handleResetCancel } from './callbacks/resetCallback';
-import i18n from '../i18n';
 import { calculateTotalSpending } from '../functions/calculateTotalSpend';
 
 
@@ -14,13 +13,17 @@ const callbackHandlers: Record<string, (ctx: Context, userId: number) => Promise
         console.log("Monthly");
         let currentDate = new Date();
         let startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-        await calculateTotalSpending.execute(ctx, { startDate: startDate.toISOString() });
+        await calculateTotalSpending.execute(ctx, {
+            startDate: startDate.toISOString()
+        });
     },
     [ CallbackQuery.SPEND.WEEKLY ]: async (ctx, _) => {
         console.log("Weekly");
         let currentDate = new Date();
         let weekStart = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay()));
-        await calculateTotalSpending.execute(ctx, { startDate: weekStart.toISOString() });
+        await calculateTotalSpending.execute(ctx, {
+            startDate: weekStart.toISOString()
+        });
     },
 };
 

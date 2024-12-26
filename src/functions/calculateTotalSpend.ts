@@ -4,77 +4,12 @@ import logger from "../utils/logger";
 import { db } from "../database";
 import { InlineKeyboard } from "grammy";
 import { CallbackQuery } from "../constant/CallbackQuery";
+import { numberFormat } from "../utils/numberFormat";
 
 
 interface dateRange {
     startDate: string;
     endDate?: string;
-}
-
-
-async function calculateTotalSpend(ctx: ListyContext, date: dateRange | null) {
-    try {
-        const userId = ctx.from?.id;
-
-        if (!date?.startDate) {
-            ctx.session.waitingForSpendRange = true;
-            const keyboard = new InlineKeyboard()
-                .text(i18n.t('cek_buttons.monthly'), CallbackQuery.SPEND.MONTHLY)
-                .text(i18n.t('cek_buttons.weekly'), CallbackQuery.SPEND.WEEKLY)
-
-
-            await ctx.reply(i18n.t('cek'), {
-                reply_markup: keyboard
-            });
-            return;
-        }
-
-        let startDate = new Date(date.startDate);
-        let endDate = date.endDate ? new Date(date.endDate) : new Date();
-
-        console.log("Start Date: ", startDate, "End Date: ", endDate);
-
-        let rawSpend = await db
-            .selectFrom('transactions')
-            .select([ 'total_price_after_discount', 'total_price_before_discount' ])
-            .where('user_id', '=', userId)
-            .where(eb => eb.and([
-                eb('transaction_date', '>=', startDate),
-                eb('transaction_date', '<=', endDate)
-            ]))
-            .execute();
-
-        console.log("Raw Spend: ", rawSpend);
-
-        let userLimit = await db.selectFrom('users').select('limit').where('telegram_id', '=', userId.toString()).execute();
-
-
-        if (rawSpend.length > 0) {
-            let list = rawSpend.map((a) => a.total_price_after_discount || a.total_price_before_discount).join('\n- ')
-
-            let totalSpend = rawSpend?.reduce((acc, val) => acc + (val.total_price_before_discount ? val.total_price_before_discount : val.total_price_after_discount!!), 0) || 0;
-
-            if (userLimit.length > 0) {
-                await ctx.reply(i18n.t('cek_spending_have_limit', {
-                    list,
-                    totalSpend, userLimit: userLimit[ 0 ].limit,
-                    remaining: (userLimit[ 0 ].limit!! - totalSpend),
-                }));
-            } else {
-                await ctx.reply(i18n.t('cek_spending', {
-                    totalSpend,
-                    list
-                }));
-            }
-        } else {
-            await ctx.reply(i18n.t('no_spending'));
-        }
-
-
-    } catch (error: any) {
-        logger.error({ error }, `Error while processing calculateTotalSpend: ${error.message}`);
-        await ctx.reply(i18n.t('error'));
-    }
 }
 
 export const calculateTotalSpending: FunctionCallDeclaration = {
@@ -102,3 +37,114 @@ export const calculateTotalSpending: FunctionCallDeclaration = {
         return calculateTotalSpend(ctx, args);
     },
 };
+
+
+async function calculateTotalSpend(ctx: ListyContext, date: dateRange | null) {
+    try {
+        console.log("Date: ", date);
+
+        const userId = ctx.from?.id;
+        if (!userId) {
+            throw new Error("User ID is missing from context.");
+        }
+
+        // Prompt user for a date range if not provided
+        if (!date?.startDate) {
+            await promptDateRange(ctx);
+            return;
+        }
+
+        // Define start and end dates
+        const startDate = new Date(date.startDate);
+        const endDate = date.endDate ? new Date(date.endDate) : new Date();
+        endDate.setDate(endDate.getDate() + 1); // Include end date in range
+
+        // Fetch spending data and user limit
+        const rawSpend = await fetchUserTransactions(userId, startDate, endDate);
+        const userLimit = await fetchUserLimit(userId);
+
+        // Process and respond based on spending data
+        if (rawSpend.length > 0) {
+            const formattedList = formatTransactionList(rawSpend);
+            const totalSpend = calculateSpending(rawSpend);
+
+            await sendSpendingSummary(ctx, formattedList, totalSpend, userLimit, startDate);
+        } else {
+            await ctx.reply(i18n.t('no_spending'));
+        }
+    } catch (error: any) {
+        logger.error({ error }, `Error while processing calculateTotalSpend: ${error.message}`);
+        await ctx.reply(i18n.t('error'));
+    }
+}
+
+// Helper functions
+async function promptDateRange(ctx: ListyContext) {
+    ctx.session.waitingForSpendRange = true;
+    const keyboard = new InlineKeyboard()
+        .text(i18n.t('cek_buttons.monthly'), CallbackQuery.SPEND.MONTHLY)
+        .text(i18n.t('cek_buttons.weekly'), CallbackQuery.SPEND.WEEKLY);
+
+    await ctx.reply(i18n.t('cek'), { reply_markup: keyboard });
+}
+
+async function fetchUserTransactions(userId: string, startDate: Date, endDate: Date) {
+    return await db
+        .selectFrom('transactions')
+        .select([ 'total_price_after_discount', 'total_price_before_discount', 'store_name', 'transaction_date' ])
+        .where('user_id', '=', userId)
+        .where(eb => eb.and([
+            eb('transaction_date', '>=', startDate),
+            eb('transaction_date', '<=', endDate),
+        ]))
+        .execute();
+}
+
+async function fetchUserLimit(userId: number) {
+    return await db
+        .selectFrom('users')
+        .select('limit')
+        .where('telegram_id', '=', userId.toString())
+        .execute();
+}
+
+function formatTransactionList(transactions: any[]) {
+    return transactions.map((record: any, index: number) => {
+        const totalPrice = record.total_price_after_discount ?? record.total_price_before_discount;
+        const formattedDate = new Date(record.transaction_date).toLocaleDateString("id-ID", {
+            day: "2-digit",
+            month: "short",
+        });
+
+        return `${index + 1}. *${record.store_name}*\n${formattedDate} - ${numberFormat(totalPrice || 0)}`;
+    }).join("\n\n");
+}
+
+function calculateSpending(transactions: any[]) {
+    return transactions.reduce((acc, record) => {
+        const totalPrice = record.total_price_after_discount ?? record.total_price_before_discount;
+        return acc + (totalPrice || 0);
+    }, 0);
+}
+
+async function sendSpendingSummary(ctx: ListyContext, formattedList: string, totalSpend: number, userLimit: any[], date: Date) {
+    let today = new Date();
+
+    // Check if user has set a spending limit for the current month
+    if (userLimit.length > 0 && today.getMonth() === date.getMonth() && today.getFullYear() === date.getFullYear()) {
+        const limit = userLimit[ 0 ].limit;
+        const remaining = limit - totalSpend;
+
+        await ctx.reply(i18n.t('cek_spending_have_limit', {
+            list: formattedList,
+            total: numberFormat(totalSpend),
+            userLimit: limit,
+            remaining: numberFormat(remaining),
+        }));
+    } else {
+        await ctx.reply(i18n.t('cek_spending', {
+            totalSpend,
+            list: formattedList,
+        }));
+    }
+}
