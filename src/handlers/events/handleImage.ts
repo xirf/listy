@@ -1,104 +1,226 @@
 import i18n from "../../i18n";
 import extractReceipt from "../../lib/gemini";
-import fs from 'fs';
+import fs from "fs";
 import logger from "../../utils/logger";
 import { fileTypeFromBuffer } from "file-type";
 import { db } from "../../database";
 import generateChecksum from "../../utils/checksum";
-import type { ListyContext } from "../../types";
+import type { ListyContext, ReceiptResult } from "../../types";
+import { numberFormat } from "../../utils/numberFormat";
+import { sql } from "kysely";
 
 export const handleImage = async (ctx: ListyContext) => {
     try {
+        await resetUserSpendingIfNeeded(ctx);
         ctx.reply(i18n.t("processing_image"));
-        const file = await ctx.getFile();
 
-        if (!file) {
-            return ctx.reply(i18n.t("image_error"));
+        const filePath = await downloadFile(ctx);
+        const fileType = await validateFileType(filePath);
+        const checksum = await validateChecksum(filePath);
+
+        const receiptContent = await extractReceipt(filePath, fileType);
+
+        if (receiptContent && receiptContent.isReceipt) {
+            const buyDate = extractBuyDate(receiptContent);
+            const discountAmount = calculateDiscountAmount(receiptContent);
+
+            const transaction = await insertTransaction(receiptContent, ctx, buyDate, discountAmount);
+            await insertItemsAndDiscounts(receiptContent, transaction.id);
+
+            const itemList = formatItemList(receiptContent.items);
+            const totalSpending = calculateTotalSpending(receiptContent, discountAmount);
+            const overallSpending = await updateUserSpending(ctx, totalSpending);
+
+            await insertChecksum(checksum, ctx);
+            await sendReceiptSuccess(ctx, itemList, discountAmount, totalSpending);
+
+            await checkUserBudget(ctx, overallSpending);
+        } else {
+            await ctx.reply(i18n.t("invalid_image"));
+            return
         }
-
-        const filePath = await file.download();
-        const fileBuffer = fs.readFileSync(filePath);
-        const fileType = await fileTypeFromBuffer(new Uint8Array(fileBuffer));
-
-        if (!fileType?.mime) {
-            return ctx.reply(i18n.t("image_error"));
-        }
-
-        const checksum = generateChecksum(filePath);
-
-        const existingFile = await db
-            .selectFrom('checksum')
-            .where('checksum', '=', checksum)
-            .limit(1)
-            .execute();
-
-        if (!checksum || existingFile.length > 0) {
-            return ctx.reply(i18n.t("image_exist"));
-        }
-
-        await db.insertInto('checksum').values({
-            checksum,
-            user_id: ctx.from.id
-        }).execute();
-
-
-        const receiptContent = await extractReceipt(filePath, fileType.mime || 'image/jpeg');
-
-        if (!receiptContent || !receiptContent.isReceipt) {
-            return ctx.reply(i18n.t("invalid_image"));
-        }
-
-        const transaction = await db
-            .insertInto("transactions")
-            .values({
-                currency: receiptContent.currency,
-                user_id: ctx.from.id,
-                total_price_after_discount: receiptContent.totalPriceAfterDiscount,
-                total_price_before_discount: receiptContent.totalPriceBeforeDiscount,
-                store_name: receiptContent.storeName,
-                transaction_date: new Date(
-                    receiptContent.transactionDate?.year,
-                    receiptContent.transactionDate?.month - 1,
-                    receiptContent.transactionDate?.day
-                ).toISOString()
-            })
-            .returning('id')
-            .execute();
-
-        const transactionId = transaction[ 0 ]?.id;
-
-        if (receiptContent.items?.length) {
-            await db.insertInto("items").values(
-                receiptContent.items.map(item => ({
-                    item: item.item,
-                    item_count: item.itemCount,
-                    price: parseFloat(item.price),
-                    transaction_id: transactionId
-                }))
-            ).execute();
-        }
-
-        if (receiptContent.discounts?.length) {
-            await db.insertInto("discounts").values(
-                receiptContent.discounts.map(discount => ({
-                    description: discount.description,
-                    amount: parseFloat(discount.amount),
-                    transaction_id: transactionId
-                }))
-            ).execute();
-        }
-
-        const itemList = receiptContent.items?.map(
-            item => `- ${item.item} x${item.itemCount} ${item.price}`
-        ).join("\n");
-
-        await ctx.reply(i18n.t("image_success", {
-            list: itemList,
-            total: receiptContent.totalPriceAfterDiscount
-        }));
-
     } catch (error: any) {
         logger.error({ error }, `Error while processing image: ${error.message}`);
         ctx.reply(i18n.t("image_error"));
     }
 };
+
+
+async function resetUserSpendingIfNeeded(ctx: ListyContext) {
+    const currentDate = new Date();
+    const [ user ] = await db
+        .selectFrom("users")
+        .select("reset_at")
+        .where("telegram_id", "=", ctx.from.id)
+        .execute();
+    const resetDate = new Date(user.reset_at);
+
+    if (currentDate.getDate() === 1 && resetDate.getMonth() !== currentDate.getMonth()) {
+        await db
+            .updateTable("users")
+            .set({ total_spending: 0, reset_at: currentDate })
+            .where("telegram_id", "=", ctx.from.id)
+            .execute();
+    }
+}
+
+async function downloadFile(ctx: ListyContext): Promise<string> {
+    const file = await ctx.getFile();
+    if (!file) {
+        throw new Error(i18n.t("image_error"));
+    }
+    return file.download();
+}
+
+async function validateFileType(filePath: string): Promise<string> {
+    const fileBuffer = fs.readFileSync(filePath);
+    const fileType = await fileTypeFromBuffer(new Uint8Array(fileBuffer));
+    if (!fileType?.mime) {
+        throw new Error(i18n.t("image_error"));
+    }
+    return fileType.mime;
+}
+
+async function validateChecksum(filePath: string): Promise<string> {
+    const checksum = generateChecksum(filePath);
+    const existingFile = await db
+        .selectFrom("checksum")
+        .where("checksum", "=", checksum)
+        .limit(1)
+        .execute();
+
+    if (!checksum || existingFile.length > 0) {
+        throw new Error(i18n.t("image_exist"));
+    }
+    return checksum;
+}
+
+function extractBuyDate(receiptContent: ReceiptResult): Date {
+    const { year, month, day } = receiptContent.transactionDate || {};
+    return year && month && day ? new Date(year, month - 1, day) : new Date();
+}
+
+function calculateDiscountAmount(receiptContent: ReceiptResult): number {
+    return receiptContent.discounts
+        ? receiptContent.discounts.reduce((acc: number, discount: any) => acc + discount.amount, 0)
+        : 0;
+}
+
+async function insertTransaction(receiptContent: ReceiptResult, ctx: ListyContext, buyDate: Date, discountAmount: number) {
+    const [ transaction ] = await db
+        .insertInto("transactions")
+        .values({
+            currency: receiptContent.currency,
+            user_id: ctx.from.id,
+            total_price_after_discount: receiptContent.totalPriceAfterDiscount,
+            total_price_before_discount: receiptContent.totalPriceBeforeDiscount,
+            discount_amount: discountAmount,
+            store_name: receiptContent.storeName,
+            transaction_date: buyDate.toISOString(),
+        })
+        .returning("id")
+        .execute();
+    return transaction;
+}
+
+async function insertItemsAndDiscounts(receiptContent: ReceiptResult, transactionId: number) {
+    const { items = [], discounts = [] } = receiptContent;
+
+    if (items.length > 0) {
+        await db
+            .insertInto("items")
+            .values(
+                items.map((item: any) => ({
+                    item: item.item,
+                    item_count: item.itemCount,
+                    price: parseFloat(item.price),
+                    transaction_id: transactionId,
+                }))
+            )
+            .execute();
+    }
+
+    if (discounts.length > 0) {
+        await db
+            .insertInto("discounts")
+            .values(
+                discounts.map((discount: any) => ({
+                    description: discount.description,
+                    amount: discount.amount,
+                    transaction_id: transactionId,
+                }))
+            )
+            .execute();
+    }
+}
+
+function formatItemList(items: ReceiptResult[ "items" ] | undefined): string {
+    if (items) {
+        return items
+            .map((item) => `- ${item.item.toLocaleUpperCase()} x${item.itemCount} ${numberFormat(parseInt(item.price))}`)
+            .join("\n");
+    } else {
+        return i18n.t('no_list')
+    }
+}
+
+function calculateTotalSpending(receiptContent: ReceiptResult, discountAmount: number): number {
+    return (receiptContent.totalPriceBeforeDiscount || 0) - discountAmount;
+}
+
+async function updateUserSpending(ctx: ListyContext, totalSpending: number) {
+    const [ updatedUser ] = await db
+        .updateTable("users")
+        .set({ total_spending: sql`total_spending + ${totalSpending}` })
+        .where("telegram_id", "=", ctx.from.id)
+        .returning("total_spending")
+        .execute();
+    return updatedUser.total_spending;
+}
+
+async function insertChecksum(checksum: string, ctx: ListyContext) {
+    await db
+        .insertInto("checksum")
+        .values({
+            checksum,
+            user_id: ctx.from.id,
+        })
+        .execute();
+}
+
+async function sendReceiptSuccess(ctx: ListyContext, itemList: string, discountAmount: number, totalSpending: number) {
+    await ctx.reply(
+        i18n.t("image_success", {
+            list: itemList,
+            discount: discountAmount,
+            total: numberFormat(totalSpending),
+        })
+    );
+}
+
+async function checkUserBudget(ctx: ListyContext, overallSpending: number) {
+    const [ user ] = await db
+        .selectFrom("users")
+        .select("limit")
+        .where("telegram_id", "=", ctx.from.id.toString())
+        .execute();
+
+    if (user?.limit) {
+        const remaining = user.limit - overallSpending;
+        if (remaining < 0) {
+            ctx.reply(
+                i18n.t("overbudget", {
+                    limit: user.limit,
+                    total: overallSpending,
+                })
+            );
+        } else if (remaining < 0.25 * user.limit) {
+            ctx.reply(
+                i18n.t("nearbudget", {
+                    remaining,
+                    limit: user.limit,
+                })
+            );
+        }
+    }
+}

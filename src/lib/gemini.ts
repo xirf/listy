@@ -20,7 +20,7 @@ async function uploadToGemini(path: string, mimeType: string) {
 
 const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
-    systemInstruction: "If no currency is provided, the system will assume the currency is IDR. If no store name is provided, the system will assume the store name is 'Unknown'. If no transaction date is provided, the system will assume the transaction date is the current date. If no items are provided, the system will assume there are no items. If no discounts are provided, the system will assume there are no discounts. all above assumptions are valid if image is a receipt.",
+    systemInstruction: "If no currency is provided, the system will assume the currency is IDR. If no store name is provided, the system will assume the store name is 'Unknown'. If no transaction date is provided, the system will assume the transaction date is the current date. If no items are provided, the system will assume there are no items. If no discounts are provided, the system will assume there are no discounts. all above assumptions are valid if image is a receipt or invoice.",
 });
 
 const generationConfig: GenerationConfig = {
@@ -62,7 +62,7 @@ const generationConfig: GenerationConfig = {
                             type: SchemaType.STRING,
                         },
                         amount: {
-                            type: SchemaType.STRING,
+                            type: SchemaType.NUMBER,
                         },
                     },
                     required: [ "description", "amount" ],
@@ -80,12 +80,6 @@ const generationConfig: GenerationConfig = {
             transactionDate: {
                 type: SchemaType.OBJECT,
                 properties: {
-                    minute: {
-                        type: SchemaType.NUMBER,
-                    },
-                    hour: {
-                        type: SchemaType.NUMBER,
-                    },
                     day: {
                         type: SchemaType.NUMBER,
                     },
@@ -132,6 +126,9 @@ async function extractReceipt(file: string, mimeType: string): Promise<ReceiptRe
 
             const result = await chatSession.sendMessage("");
             const resultText = await result.response.text();
+
+            console.log(resultText);
+
             resolve(JSON.parse(resultText));
         } catch (error: any) {
             logger.error({ error }, `Error while extracting receipt: ${error.message}`);

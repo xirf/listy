@@ -1,12 +1,9 @@
-import type { Context } from "grammy";
-import { userState } from "../../utils/state";
 import i18next from "../../i18n"
 import { db } from "../../database";
 import { numberFormat } from "../../utils/numberFormat";
+import type { ListyContext } from "../../types";
 
-export const handleLimit = async (ctx: Context, userId: number) => {
-    userState[ userId ] = { waitingForLimit: false };
-
+export const handleLimit = async (ctx: ListyContext, userId: number) => {
     const limit = ctx.message && ctx.message.text ? parseInt(ctx.message.text) : NaN;
 
     if (isNaN(limit) || limit <= 0) {
@@ -27,6 +24,6 @@ export const handleLimit = async (ctx: Context, userId: number) => {
             }));
         }
 
-        userState[ userId ] = {};
+        ctx.session.waitingForLimit = false;
     }
 }

@@ -6,6 +6,8 @@ export async function up(db: Kysely<any>): Promise<void> {
 		.createTable('users')
 		.addColumn('telegram_id', 'varchar', (col) => col.primaryKey())
 		.addColumn('limit', 'integer')
+		.addColumn('total_spending', 'decimal', (col) => col.defaultTo(0))
+		.addColumn('reset_at', 'timestamp', (col) => col.defaultTo(sql`now()`).notNull())
 		.addColumn('created_at', 'timestamp', (col) => col.defaultTo(sql`now()`).notNull())
 		.execute();
 

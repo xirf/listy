@@ -2,14 +2,13 @@ import type { ListyContext } from "../types/index";
 import i18n from '../i18n';
 import { InlineKeyboard } from "grammy";
 import { CallbackQuery } from "../constant/CallbackQuery";
-import { userState } from "../utils/state";
 import logger from "../utils/logger";
 
 export async function handleReset(ctx: ListyContext) {
     try {
         const userId = ctx.from?.id;
         if (userId) {
-            userState[ userId ] = { waitingForResetConfirmation: true };
+            ctx.session = { waitingForResetConfirmation: true };
             const keyboard = new InlineKeyboard()
                 .text(i18n.t('reset_buttons.yes'), CallbackQuery.RESET_CONFIRM)
                 .text(i18n.t('reset_buttons.no'), CallbackQuery.RESET_CANCEL);

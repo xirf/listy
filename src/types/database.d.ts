@@ -9,6 +9,8 @@ import type {
 export interface UserTable {
     telegram_id: string;
     limit: number | null;
+    total_spending: number;
+    reset_at: ColumnType<Date>;
     created_at: ColumnType<Date, string | undefined, never>;
 }
 
@@ -33,6 +35,7 @@ export interface TransactionTable {
     total_price_before_discount: ColumnType<number | undefined>;
     total_price_after_discount: ColumnType<number | undefined>;
     store_name: ColumnType<string | undefined>;
+    discount_amount: ColumnType<number | undefined>;
     transaction_date: ColumnType<Date, string | undefined, never>;
     currency: ColumnType<string | undefined>;
     created_at: ColumnType<Date, string | undefined, never>;

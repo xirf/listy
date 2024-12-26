@@ -26,7 +26,7 @@ const setLimitCommand = new Command<ListyContext>("setlimit", "Tetapkan budget b
 const resetCommand = new Command<ListyContext>("reset", 'Hapus semua yang udah di catet', handleReset);
 const helpCommand = new Command<ListyContext>("help", "Butuh panduan? Sini sini", handleHelp);
 const startCommand = new Command<ListyContext>("start", "Yuk mulai ngobrol", handleStart);
-const totalSpendingCommand = new Command<ListyContext>("totalspending", "Cek total pengeluaranmu", handleTotalSpending);
+const totalSpendingCommand = new Command<ListyContext>("cek", "Cek total pengeluaranmu", handleTotalSpending);
 
 // Register commands
 export const userCommands = new CommandGroup<ListyContext>().add([

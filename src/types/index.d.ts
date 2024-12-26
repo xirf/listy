@@ -13,7 +13,7 @@ export interface SessionData {
 export type ListyContext = Context & ParseModeFlavor<Context> & SessionFlavor<SessionData> & FileFlavor<Context> & CommandsFlavor;
 export type ListyApi = FileApiFlavor<Api>;
 
-type ReceiptResult = {
+export interface ReceiptResult {
     isReceipt: boolean;
     items?: Array<{
         item: string;
@@ -22,7 +22,7 @@ type ReceiptResult = {
     }>;
     discounts?: Array<{
         description: string;
-        amount: string;
+        amount: number;
     }>;
     totalPriceBeforeDiscount?: number;
     totalPriceAfterDiscount?: number;

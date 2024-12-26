@@ -7,6 +7,8 @@ export default async function handleFuntionCall(ctx: ListyContext, functionCall:
     try {
         let functionName = functionCall.function.name;
         let args = JSON.parse(functionCall.function.arguments);
+        console.log("Function name: ", functionName);
+        console.log("Arguments: ", args);
 
         switch (functionName) {
             case "set_user_limit":

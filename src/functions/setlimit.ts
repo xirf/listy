@@ -3,7 +3,6 @@ import i18n from '../i18n';
 import logger from "../utils/logger";
 import { db } from "../database";
 import { numberFormat } from "../utils/numberFormat";
-import { userState } from "../utils/state";
 
 async function setUserLimitFunc(ctx: ListyContext, budget: number | undefined = undefined) {
     try {
@@ -34,9 +33,9 @@ async function setUserLimitFunc(ctx: ListyContext, budget: number | undefined = 
                 }));
             }
 
-            userState[ userId ] = {};
+            ctx.session.waitingForLimit = false;
         } else {
-            userState[ userId ] = { waitingForLimit: true };
+            ctx.session.waitingForLimit = true;
             await ctx.reply(i18n.t('setlimit'));
         }
     } catch (error: any) {
