@@ -7,6 +7,7 @@ import type { ChatCompletionTool } from "openai/src/resources/index.js";
 export interface SessionData {
     waitingForLimit?: boolean,
     waitingForResetConfirmation?: boolean,
+    waitingForSpendRange?: boolean
 }
 
 export type ListyContext = Context & ParseModeFlavor<Context> & SessionFlavor<SessionData> & FileFlavor<Context> & CommandsFlavor;
@@ -35,5 +36,5 @@ type ReceiptResult = {
 };
 
 export interface FunctionCallDeclaration extends ChatCompletionTool {
-    execute: (ctx: ListyContext, args: any) => void
+    execute: (ctx: ListyContext, args: any) => Promise<void>;
 }

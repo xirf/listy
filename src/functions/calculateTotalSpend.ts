@@ -2,6 +2,9 @@ import type { FunctionCallDeclaration, ListyContext } from "../types/index";
 import i18n from '../i18n';
 import logger from "../utils/logger";
 import { db } from "../database";
+import { userState } from "../utils/state";
+import { InlineKeyboard } from "grammy";
+import { CallbackQuery } from "../constant/CallbackQuery";
 
 
 
@@ -10,7 +13,7 @@ async function calculateTotalSpend(ctx: ListyContext, startDate: string, endDate
     try {
         const userId = ctx.from?.id;
 
-        if (startDate && endDate) {
+        if (startDate) {
             let rawSpend = await db
                 .selectFrom('transactions')
                 .select([ 'total_price_after_discount', 'total_price_before_discount' ])
@@ -42,7 +45,15 @@ async function calculateTotalSpend(ctx: ListyContext, startDate: string, endDate
                 await ctx.reply(i18n.t('no_spending'));
             }
         } else {
+            ctx.session.waitingForSpendRange = true;
+            const keyboard = new InlineKeyboard()
+                .text(i18n.t('cek_buttons.monthly'), CallbackQuery.SPEND.MONTHLY)
+                .text(i18n.t('cek_buttons.weekly'), CallbackQuery.SPEND.WEEKLY)
 
+
+            await ctx.reply(i18n.t('spend_range'), {
+                reply_markup: keyboard
+            });
         }
 
     } catch (error: any) {

@@ -2,6 +2,7 @@ import Instructor from '@instructor-ai/instructor'
 import OpenAI from 'openai'
 import type { ChatCompletionMessageParam } from 'openai/resources/index.mjs'
 import { calculateTotalSpending } from '../functions/calculateTotalSpend'
+import { setUserLimit } from '../functions/setlimit'
 
 const openaiclient = new OpenAI({
     baseURL: "https://models.inference.ai.azure.com",
@@ -15,13 +16,14 @@ const client = Instructor({
 
 
 const tools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
-    calculateTotalSpending
+    calculateTotalSpending,
+    setUserLimit
 ]
 
 
 export async function getAiResponse(prompt: string, history: ChatCompletionMessageParam[] = []) {
+
     const response = await client.chat.completions.create({
-        
         messages: [
             {
                 role: 'system',
@@ -30,10 +32,10 @@ export async function getAiResponse(prompt: string, history: ChatCompletionMessa
             ...history,
             {
                 role: 'user',
-                content: `${prompt}`
+                content: `${prompt}, current date is ${new Date().toISOString()}`
             }
         ],
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o-mini',
         max_tokens: 1000,
         temperature: 1.0,
         top_p: 1.0,

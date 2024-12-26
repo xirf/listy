@@ -55,13 +55,13 @@ async function getHistory(userId: string): Promise<ChatCompletionMessageParam[]>
     }
 }
 
-async function saveMessage(userId: string, message: string, role: "user" | "model" = "user") {
+async function saveMessage(userId: string, message: string, role: "user" | "system" = "user") {
     try {
         await db.insertInto('history').values({
             telegram_id: userId,
             message: JSON.stringify({
                 role,
-                parts: [ { text: message } ]
+                content: message,
             })
         }).execute();
     } catch (error: any) {
@@ -71,6 +71,9 @@ async function saveMessage(userId: string, message: string, role: "user" | "mode
 
 async function aiResponse(ctx: ListyContext, userId: string, history: ChatCompletionMessageParam[]) {
     try {
+        console.log("User ID: ", userId, "Message: ", ctx.message.text);
+        if(!ctx.message.text) return;
+
         const response = await getAiResponse(ctx.message.text, history);
 
         if (response) {
@@ -86,7 +89,7 @@ async function aiResponse(ctx: ListyContext, userId: string, history: ChatComple
 
             if (answer) {
                 await ctx.reply(answer);
-                saveMessage(userId, answer, "model");
+                saveMessage(userId, answer, "system");
             };
         }
 

@@ -13,7 +13,7 @@
     "setlimit": "Hai! Yuk atur budget bulanan kamu.\n\nOh iya, jangan lupa tambahin sedikit buat uang darurat ya, biar lebih tenang kalau ada keperluan mendadak 😊\n\nJadi berapa nih uang bulanan nya?\n\nContoh: 1500000",
     "limit_invalid": "Aduh, kayaknya kamu salah ketik nih. 😅 Coba ketik lagi ya, jangan lupa angka tanpa titik atau koma.",
     "limit_too_low": "Sip udah ku ingat tapi kamu yakin cuman *{{limit}}*? 😯\n\nKalau nanti pengeluaran kamu lebih dari ini, Listy bakal marahin kamu loh! 😡",
-    "limit_set": "Yeay! Budget bulanan kamu udah Listy atur jadi *{{limit}}*. 🎉\n\nIngat ya, gunakan dengan bijak biar aman sampai akhir bulan! 😊",
+    "limit_set": "Okei, Budget bulanan kamu udah Listy atur jadi *{{limit}}*. 🎉\n\nIngat ya, gunakan dengan bijak biar aman sampai akhir bulan! 😊",
     "cek": "Kamu mau cek pengeluaran yang bulanan atau mingguan?",
     "cek_buttons": {
         "monthly": "Bulanan 📅",
@@ -23,8 +23,6 @@
     "cek_spending": "Hai! Ini dia ringkasan pengeluaranmu bulan ini:\n\n{{list}}\n\nTotalnya: *{{total}}*.\n\nSemangat terus ya dalam mengelola keuanganmu! ✨",
     "cek_spending_have_limit": "Hai! Ini ringkasan pengeluaranmu bulan ini:\n\n{{list}}\n\nTotal pengeluaran: *{{total}}*.\n\nSisa budget bulananmu: *{{remaining}}*.\n\nYuk, tetap jaga pengeluaranmu supaya anggaran tetap aman. Kamu pasti bisa!",
     "no_spending": "Belum ada pengeluaran yang tercatat nih. Yuk mulai atur keuangan kamu sekarang! 💖",
-    "list": "Sejak kamu bareng Listy, ini daftar belanjaanmu:\n\n{{list}}\n\nTotal yang udah kamu habiskan: *{{total}}*. Jangan lupa kontrol pengeluaran ya! 💖",
-    "list_empty": "Belum ada belanjaan yang tercatat nih. Yuk mulai sekarang biar keuangan kamu lebih teratur! 😊",
     "total": "Total pengeluaran kamu sampai sekarang adalah: *{{total}}*. Bagus ya, terus semangat atur keuanganmu biar makin rapi! 💪✨",
     "total_empty": "Belum ada pengeluaran yang tercatat nih. Yuk mulai atur keuangan kamu sekarang! 💖",
     "overbudget": "Hey! 😡 Kemarin udah set budget bulanan *{{limit}}* kan? kok malah jadi *{{total}}*\n\nKenapa sekarang belanja jadi kebablasan begini? Harusnya lebih hati-hati dong ngatur uangnya! 😤",

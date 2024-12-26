@@ -5,7 +5,7 @@ import { parseMode } from "@grammyjs/parse-mode";
 import { hydrateFiles } from '@grammyjs/files';
 import type { ListyApi, ListyContext, SessionData } from '../types';
 import { commands } from '@grammyjs/commands';
-import { userCommands } from '../commands';
+import { userCommands } from '../handlers/command';
 import { db } from '../database';
 
 export const bot = new Bot<ListyContext, ListyApi>(BOT_TOKEN);
@@ -14,6 +14,7 @@ function initial(): SessionData {
     return {
         waitingForLimit: false,
         waitingForResetConfirmation: false,
+        waitingForSpendRange: false
     };
 }
 
