@@ -4,6 +4,24 @@ import { userState } from "../utils/state";
 import logger from "../utils/logger";
 import { db } from "../database";
 import { numberFormat } from "../utils/numberFormat";
+import { SchemaType, type FunctionDeclaration } from "@google/generative-ai";
+
+
+export const SetUserLimitDeclaration: FunctionDeclaration = {
+    name: "setUserLimit",
+    description: "Atur limit pengeluaran pengguna",
+    parameters: {
+        type: SchemaType.OBJECT,
+        properties: {
+            budget: {
+                type: SchemaType.NUMBER
+            }
+        },
+        required: [
+            "budget"
+        ]
+    }
+}
 
 export async function handleSetLimit(ctx: ListyContext, limit: number | undefined = undefined) {
     try {

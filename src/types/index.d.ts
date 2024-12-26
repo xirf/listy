@@ -2,6 +2,7 @@ import type { FileFlavor } from "@grammyjs/files";
 import type { Bot, SessionFlavor, Api } from "grammy";
 import type { FileApiFlavor } from "@grammyjs/files";
 import type { CommandsFlavor } from "@grammyjs/commands";
+import type { ChatCompletionTool } from "openai/src/resources/index.js";
 
 export interface SessionData {
     waitingForLimit?: boolean,
@@ -32,3 +33,7 @@ type ReceiptResult = {
     };
     currency?: string;
 };
+
+export interface FunctionCallDeclaration extends ChatCompletionTool {
+    execute: (ctx: ListyContext, args: any) => void
+}

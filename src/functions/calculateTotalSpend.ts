@@ -1,12 +1,12 @@
-import type { ListyContext } from "../types/index";
+import type { FunctionCallDeclaration, ListyContext } from "../types/index";
 import i18n from '../i18n';
-import { InlineKeyboard } from "grammy";
-import { CallbackQuery } from "../constant/CallbackQuery";
-import { userState } from "../utils/state";
 import logger from "../utils/logger";
 import { db } from "../database";
 
-export async function calculateTotalSpend(ctx: ListyContext, startDate: string, endDate: string | undefined = undefined) {
+
+
+
+async function calculateTotalSpend(ctx: ListyContext, startDate: string, endDate: string | undefined = undefined) {
     try {
         const userId = ctx.from?.id;
 
@@ -50,3 +50,29 @@ export async function calculateTotalSpend(ctx: ListyContext, startDate: string, 
         await ctx.reply(i18n.t('error'));
     }
 }
+
+export const calculateTotalSpending: FunctionCallDeclaration = {
+    type: "function",
+    function: {
+        name: "calculate_total_spending",
+        description: "Calculate the user's total spending within a specified date range and respond with relevant messages.",
+        parameters: {
+            type: "object",
+            properties: {
+                startDate: {
+                    type: "string",
+                    description: "Starting date in ISO format (e.g., 2023-01-01).",
+                },
+                endDate: {
+                    type: "string",
+                    description:
+                        "Optional ending date in ISO format. Defaults to current date if not provided.",
+                },
+            },
+            required: [ "startDate" ],
+        },
+    },
+    execute: async (ctx: ListyContext, args: { startDate: string; endDate?: string }) => {
+        return calculateTotalSpend(ctx, args.startDate, args.endDate);
+    },
+};

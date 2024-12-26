@@ -1,19 +1,20 @@
 import type { FunctionCall } from "@google/generative-ai";
 import { handleSetLimit } from "../functions/setlimit";
 import type { ListyContext } from "../types";
-import { calculateTotalSpend } from "../functions/calculateTotalSpend";
+import { calculateTotalSpending } from "../functions/calculateTotalSpend";
+import type { ChatCompletionMessageToolCall } from "openai/resources/index.mjs";
 
-export default async function handleFuntionCall(ctx: ListyContext, functionCall: FunctionCall) {
+export default async function handleFuntionCall(ctx: ListyContext, functionCall: ChatCompletionMessageToolCall) {
     try {
-        let functionName = functionCall.name;
+        let functionName = functionCall.function.name;
 
         switch (functionName) {
             case "setUserLimit":
-                handleSetLimit(ctx, (functionCall.args as { budget: number }).budget);
+                handleSetLimit(ctx, (parseInt(functionCall.function.arguments)));
                 break;
             case "calculateTotalSpend":
-                let { start_date, end_date } = functionCall.args as { start_date: string, end_date: string };
-                calculateTotalSpend(ctx, start_date, end_date);
+                let args = functionCall.function.arguments;
+                calculateTotalSpending.execute(ctx, args);
                 break;
         }
     } catch (error) {
