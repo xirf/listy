@@ -102,7 +102,7 @@ function extractBuyDate(receiptContent: ReceiptResult): Date {
 
 function calculateDiscountAmount(receiptContent: ReceiptResult): number {
     return receiptContent.discounts
-        ? receiptContent.discounts.reduce((acc: number, discount: any) => acc + discount.amount, 0)
+        ? receiptContent.discounts.reduce((acc: number, discount: any) => acc + (discount.amount || 0), 0)
         : 0;
 }
 
@@ -166,8 +166,10 @@ function formatItemList(items: ReceiptResult[ "items" ] | undefined): string {
 
 function calculateTotalSpending(receiptContent: ReceiptResult, discountAmount: number): number {
     // Use totalPriceAfterDiscount if available, otherwise calculate it
-    return receiptContent.totalPriceAfterDiscount || 
-           ((receiptContent.totalPriceBeforeDiscount || 0) - discountAmount);
+    const total = receiptContent.totalPriceAfterDiscount || 
+                  ((receiptContent.totalPriceBeforeDiscount || 0) - discountAmount);
+    // Ensure total is never negative (edge case protection)
+    return Math.max(0, total);
 }
 
 async function updateUserSpending(ctx: ListyContext, totalSpending: number, date: Date) {
