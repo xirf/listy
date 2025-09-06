@@ -4,7 +4,7 @@ import { numberFormat } from "../../utils/numberFormat";
 import type { ListyContext } from "../../types";
 
 export const handleLimit = async (ctx: ListyContext, userId: number) => {
-    const limit = ctx.message && ctx.message.text ? parseInt(ctx.message.text) : NaN;
+    const limit = ctx.message && ctx.message.text ? parseFloat(ctx.message.text) : NaN;
 
     if (isNaN(limit) || limit <= 0) {
         await ctx.reply(i18next.t('limit_invalid'));

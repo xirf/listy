@@ -20,7 +20,8 @@ const callbackHandlers: Record<string, (ctx: Context, userId: number) => Promise
     [ CallbackQuery.SPEND.WEEKLY ]: async (ctx, _) => {
         console.log("Weekly");
         let currentDate = new Date();
-        let weekStart = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay()));
+        let weekStart = new Date(currentDate);
+        weekStart.setDate(currentDate.getDate() - currentDate.getDay());
         await calculateTotalSpending.execute(ctx, {
             startDate: weekStart.toISOString()
         });
