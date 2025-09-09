@@ -51,7 +51,7 @@ async function resetUserSpendingIfNeeded(ctx: ListyContext) {
     const [ user ] = await db
         .selectFrom("users")
         .select("reset_at")
-        .where("telegram_id", "=", ctx.from.id)
+        .where("telegram_id", "=", ctx.from.id.toString())
         .execute();
     const resetDate = new Date(user.reset_at);
 
@@ -59,7 +59,7 @@ async function resetUserSpendingIfNeeded(ctx: ListyContext) {
         await db
             .updateTable("users")
             .set({ total_spending: 0, reset_at: currentDate })
-            .where("telegram_id", "=", ctx.from.id)
+            .where("telegram_id", "=", ctx.from.id.toString())
             .execute();
     }
 }
@@ -102,7 +102,7 @@ function extractBuyDate(receiptContent: ReceiptResult): Date {
 
 function calculateDiscountAmount(receiptContent: ReceiptResult): number {
     return receiptContent.discounts
-        ? receiptContent.discounts.reduce((acc: number, discount: any) => acc + discount.amount, 0)
+        ? receiptContent.discounts.reduce((acc: number, discount: any) => acc + (discount.amount || 0), 0)
         : 0;
 }
 
@@ -111,7 +111,7 @@ async function insertTransaction(receiptContent: ReceiptResult, ctx: ListyContex
         .insertInto("transactions")
         .values({
             currency: receiptContent.currency,
-            user_id: ctx.from.id,
+            user_id: ctx.from.id.toString(),
             total_price_after_discount: receiptContent.totalPriceAfterDiscount,
             total_price_before_discount: receiptContent.totalPriceBeforeDiscount,
             discount_amount: discountAmount,
@@ -133,7 +133,7 @@ async function insertItemsAndDiscounts(receiptContent: ReceiptResult, transactio
                 items.map((item: any) => ({
                     item: item.item,
                     item_count: item.itemCount,
-                    price: parseFloat(item.price),
+                    price: parseFloat(item.price) || 0,
                     transaction_id: transactionId,
                 }))
             )
@@ -157,7 +157,7 @@ async function insertItemsAndDiscounts(receiptContent: ReceiptResult, transactio
 function formatItemList(items: ReceiptResult[ "items" ] | undefined): string {
     if (items) {
         return items
-            .map((item) => `- ${item.item.toLocaleUpperCase()} x${item.itemCount} ${numberFormat(parseInt(item.price))}`)
+            .map((item) => `- ${item.item.toLocaleUpperCase()} x${item.itemCount} ${numberFormat(parseFloat(item.price) || 0)}`)
             .join("\n");
     } else {
         return i18n.t('no_list')
@@ -165,24 +165,32 @@ function formatItemList(items: ReceiptResult[ "items" ] | undefined): string {
 }
 
 function calculateTotalSpending(receiptContent: ReceiptResult, discountAmount: number): number {
-    return (receiptContent.totalPriceBeforeDiscount || 0) - discountAmount;
+    // Use totalPriceAfterDiscount if available, otherwise calculate it
+    const total = receiptContent.totalPriceAfterDiscount || 
+                  ((receiptContent.totalPriceBeforeDiscount || 0) - discountAmount);
+    // Ensure total is never negative (edge case protection)
+    return Math.max(0, total);
 }
 
 async function updateUserSpending(ctx: ListyContext, totalSpending: number, date: Date) {
-    if (date.getMonth() == new Date().getMonth()) {
+    const currentDate = new Date();
+    // Check if the transaction is from the current month AND year
+    if (date.getMonth() === currentDate.getMonth() && date.getFullYear() === currentDate.getFullYear()) {
         const [ updatedUser ] = await db
             .updateTable("users")
             .set({ total_spending: sql`total_spending + ${totalSpending}` })
-            .where("telegram_id", "=", ctx.from.id)
+            .where("telegram_id", "=", ctx.from.id.toString())
             .returning("total_spending")
             .execute();
         return updatedUser.total_spending;
     } else {
-        await db
+        // For transactions from other months, just return the current total spending
+        const [ user ] = await db
             .selectFrom("users")
-            .where("telegram_id", "=", ctx.from.id)
+            .select("total_spending")
+            .where("telegram_id", "=", ctx.from.id.toString())
             .execute();
-        return totalSpending;
+        return user?.total_spending || 0;
     }
 }
 
@@ -191,7 +199,7 @@ async function insertChecksum(checksum: string, ctx: ListyContext) {
         .insertInto("checksum")
         .values({
             checksum,
-            user_id: ctx.from.id,
+            user_id: ctx.from.id.toString(),
         })
         .execute();
 }

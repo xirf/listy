@@ -57,11 +57,12 @@ async function calculateTotalSpend(ctx: ListyContext, date: dateRange | null) {
         // Define start and end dates
         const startDate = new Date(date.startDate);
         const endDate = date.endDate ? new Date(date.endDate) : new Date();
-        endDate.setDate(endDate.getDate() + 1); // Include end date in range
+        // Set end date to end of day to include the full end date
+        endDate.setHours(23, 59, 59, 999);
 
         // Fetch spending data and user limit
-        const rawSpend = await fetchUserTransactions(userId, startDate, endDate);
-        const userLimit = await fetchUserLimit(userId);
+        const rawSpend = await fetchUserTransactions(userId.toString(), startDate, endDate);
+        const userLimit = await fetchUserLimit(userId.toString());
 
         // Process and respond based on spending data
         if (rawSpend.length > 0) {
@@ -100,11 +101,11 @@ async function fetchUserTransactions(userId: string, startDate: Date, endDate: D
         .execute();
 }
 
-async function fetchUserLimit(userId: number) {
+async function fetchUserLimit(userId: string) {
     return await db
         .selectFrom('users')
         .select('limit')
-        .where('telegram_id', '=', userId.toString())
+        .where('telegram_id', '=', userId)
         .execute();
 }
 
@@ -143,8 +144,8 @@ async function sendSpendingSummary(ctx: ListyContext, formattedList: string, tot
         }));
     } else {
         await ctx.reply(i18n.t('cek_spending', {
-            totalSpend,
             list: formattedList,
+            total: numberFormat(totalSpend),
         }));
     }
 }
